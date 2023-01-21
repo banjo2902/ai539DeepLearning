@@ -1,7 +1,17 @@
 from collections import Counter 
 from re import sub, compile
 import matplotlib.pyplot as plt
+from matplotlib.style import library
 import numpy as np
+import nltk
+# import from nltk module
+from nltk.tag import pos_tag
+from nltk.tokenize import word_tokenize
+from nltk.stem import WordNetLemmatizer
+
+# nltk.download('wordnet')
+# nltk.download('punkt')
+# nltk.download('averaged_perceptron_tagger')
 
 class UnimplementedFunctionError(Exception):
 	pass
@@ -41,16 +51,32 @@ class Vocabulary:
 	    - tokens: a list of strings derived from the text, e.g. ["the", "blue", "dog", "jumped", "but", "not", "high"] for word-level tokenization
 	    
 	    """ 
+		# remove punctuation
+		text = sub('\W+',' ', text)
 
-		# REMOVE THIS ONCE YOU IMPLEMENT THIS FUNCTION
-		raise UnimplementedFunctionError("You have not yet implemented tokenize.")
+		# run a POS tagger on the text to find out the parts-of-speech
+		# and then lemmatize accordingly
+		lemmatizer = WordNetLemmatizer()
+		tokenizedString = []
+		for word, tag in pos_tag(word_tokenize(text)):
+			# nouns
+			if tag.startswith("NN"):
+				word = lemmatizer.lemmatize(word, pos='n')
+			# verbs
+			elif tag.startswith('VB'):
+				word = lemmatizer.lemmatize(word, pos='v')
+			# adj
+			elif tag.startswith('JJ'):
+				word = lemmatizer.lemmatize(word, pos='a')
+				
+			tokenizedString.append(word)
 
-
+		return tokenizedString
 
 	###########################
 	## TASK 1.2            	 ##
 	###########################
-	def build_vocab(self,corpus):
+	def build_vocab(self, corpus):
 		"""
 	    
 	    build_vocab takes in list of strings corresponding to a text corpus, tokenizes the strings, and builds a finite vocabulary
@@ -83,3 +109,5 @@ class Vocabulary:
 	    # REMOVE THIS ONCE YOU IMPLEMENT THIS FUNCTION
 		raise UnimplementedFunctionError("You have not yet implemented make_vocab_charts.")
 
+text = " The quick, brown fox jumped over the better but lazy dog."
+print("tokenization : ", Vocabulary.tokenize(0, text))
