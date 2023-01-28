@@ -1,4 +1,3 @@
-
 from datasets import load_dataset
 from Vocabulary import Vocabulary
 import matplotlib.pyplot as plt
@@ -41,9 +40,36 @@ def compute_cooccurrence_matrix(corpus, vocab):
 	    - C: a N x N matrix where the i,j'th entry is the co-occurrence frequency from the corpus between token i and j in the vocabulary
 
 	    """ 
+	try:
+		# MatrixC is a matrix of co-occurence counts such that the ijth element of C denoted Cij is the number of times both wi and wj occur in a context. 
+		MatrixC = np.load("CMatrix.npy")
+
+	except:
+		C = [[0]*len(vocab.word2idx)] * len(vocab.word2idx)
+		for text in corpus:
+			tokens = vocab.tokenize(text)
+
+			for i in range(len(tokens)):
+				for j in range(len(tokens)):
+					if tokens[i] in vocab.word2idx.keys():
+						if tokens[j] in vocab.word2idx.keys():
+							C[vocab.word2idx[tokens[i]]][vocab.word2idx[tokens[j]]] += 1
+						else:
+							C[vocab.word2idx[tokens[i]]][vocab.word2idx['UNK']] += 1
+					else:
+						if tokens[j] in vocab.word2idx.keys():
+							C[vocab.word2idx['UNK']][vocab.word2idx[tokens[j]]] += 1
+						else:
+							C[vocab.word2idx['UNK']][vocab.word2idx['UNK']] += 1
+
+		MatrixC = np.array(C)
+		np.save("MatrixC", MatrixC)
+	
+	return MatrixC
+		
 
 	# REMOVE THIS ONCE YOU IMPLEMENT THIS FUNCTION
-	raise UnimplementedFunctionError("You have not yet implemented compute_count_matrix.")
+	# raise UnimplementedFunctionError("You have not yet implemented compute_count_matrix.")
 	
 
 ###########################
@@ -64,9 +90,33 @@ def compute_ppmi_matrix(corpus, vocab):
 	    - PPMI: a N x N matrix where the i,j'th entry is the estimated PPMI from the corpus between token i and j in the vocabulary
 
 	    """ 
+	try:
+		MatrixP = np.load("MatrixP.npy")
+
+	except:
+		C = compute_cooccurrence_matrix(corpus, vocab)
+		P = [[0] * C.shape[1]] * C.shape[0]
+		N = len(corpus)
+
+		for i in range(C.shape[0]):
+			for j in range(C.shape[1]):
+				r = (C[i, j] * N) / ((C[i, i]+0.0001) * C[j, j])
+
+				if abs(r) <= 10**-6:
+					if r > 0:
+						r += 10**-6
+					else:
+						r -= 10**-6
+				
+				P[i][j] = max(0, np.log(r))
+		
+		MatrixP = np.array(P)
+		np.save('MatrixP', MatrixP)
+
+	return MatrixP
 
 	# REMOVE THIS ONCE YOU IMPLEMENT THIS FUNCTION
-	raise UnimplementedFunctionError("You have not yet implemented compute_ppmi_matrix.")
+	# raise UnimplementedFunctionError("You have not yet implemented compute_ppmi_matrix.")
 
 
 	

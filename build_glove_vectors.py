@@ -114,13 +114,13 @@ def main_glove():
 
 
 			# REMOVE THIS ONCE YOU IMPLEMENT THIS SECTION
-			raise UnimplementedFunctionError("You have not yet implemented the batch gradients.")
+			# raise UnimplementedFunctionError("You have not yet implemented the batch gradients.")
 
 			# write expressions using numpy to implement the gradients you derive in 3.1. 
-			wordvecs_grad = np.zeros( (bSize,d) )
-			wordbiases_grad = np.zeros( (bSize,1) )
-			contextvecs_grad = np.zeros( (bSize,d) )
-			contextbiases_grad = np.zeros( (bSize,1) )
+			wordvecs_grad = 2*fval*error*c_batch
+			wordbiases_grad = 2*fval*error
+			contextvecs_grad = 2*fval*error*w_batch
+			contextbiases_grad = 2*fval*error
 
 			########################################################################
 	
